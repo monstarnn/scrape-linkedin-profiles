@@ -30,8 +30,6 @@ for Chrome or Firefox.
 
 WebDriver can be checked by opening [http://localhost:4444/wd/hub](http://localhost:4444/wd/hub)
 
-NOTE: this method not works with Google scanning that shows kaptcha for more than 100 queries.
-
 ## Install required Python 3 packages 
 
 ```
@@ -41,27 +39,14 @@ pip3 install selenium
 ## Scrape
 
 ### Prepare existing data
-
 ```
-python 1.prepare.py
+python prepare.py <source-filename>
 ```
-This script prepares source CSV to required format with 3 fields: name, position and company.
-This data will record to `./data.csv`
+This script prepares source CSV to required format with 3 columns with header:
+`First and Last Name`, `Position` and `Company`. This data will record to `./data.csv`
 
-### Get LinkedIn URLs
+### Scrape LinkedIn profiles
 ```
-python 2.add_linkedin.py
+python scrape.py <linkerid-email> <linkedin-password>
 ```
-
-This script uses Google search with Selenium browser to get LinkedIn URLs by name, position and company.
-Source file is `./data.csv`, target - `./data.linkedin.csv`
-
-If process interrupted tne next execution will continue from last scanned person. 
-
-Note: if you have a lot of users, many requests will make. Every 100 requests Google returns kaptha,
-so executing will be paused until YOU will pass this kaptcha.
-
-### Scan LinkedIn profiles
-```
-python 3.scrape_linkedin.py <linkerid-email> <linkedin-password>
-```
+You can interrupt execution at any time and run script again, it will continue scrapping from the last position.
