@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 source_data_file_name = 'data.csv'
-target_data_file_name = 'data.linkedin.scraped2.csv'
+target_data_file_name = 'data.linkedin.scraped.csv'
 
 
 def main():
@@ -58,7 +58,7 @@ def main():
                 header.append("LinkedIn")
                 header.append("Image")
                 header.append("Positions")
-                header.append("Compaties")
+                header.append("Companies")
                 header.append("Links")
                 data_writer.writerow(header)
 

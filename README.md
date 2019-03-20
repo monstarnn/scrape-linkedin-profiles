@@ -18,6 +18,8 @@ After tests completion this just opened browser's session will be closed.
 
 ### Docker testing environment
 
+NOTE: this method is not implemented yet, use previous method. 
+
 It's available to run WebDriver in docker container.
 Required containers can be found in [Selenium Docker project](https://github.com/SeleniumHQ/docker-selenium)
 
@@ -49,4 +51,15 @@ This script prepares source CSV to required format with 3 columns with header:
 ```
 python scrape.py <linkerid-email> <linkedin-password>
 ```
+This script logins browser session to LinkedIn as user with specified user's email and password.
+If login succedeed it searches for LinkedIn users from `./data.csv` using LinkegIn's search form
+and scrapes user's info from their profiles. So existing information is complemented by the following fields:
+* `LinkedIn` - URL to LinkedIn's profile (empty if user has not been found)
+* `Image` - URL to user's avatar image (empty if absent)
+* `Positions` - "|"-separated user's last jobs positions (related with companies)
+* `Companies` - "|"-separated user's last jobs companies (related with positions)
+* `Links` - "|"-separated user's links (Twitter, sites, etc...)
+
+Scrapped info stores to `./data.linkedin.scraped.csv`
+
 You can interrupt execution at any time and run script again, it will continue scrapping from the last position.
