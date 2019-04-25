@@ -36,16 +36,18 @@ def main():
     driver = webdriver.Chrome('./chromedriver')
 
     # login to linkedin
-    driver.get('https://www.linkedin.com')
-    username = driver.find_element_by_class_name('login-email')
+    driver.get('https://www.linkedin.com/uas/login')
+    username = driver.find_element_by_id('username')
     username.send_keys(sys.argv[1])
-    password = driver.find_element_by_class_name('login-password')
+    password = driver.find_element_by_id('password')
     password.send_keys(sys.argv[2])
     sign_in_button = driver.find_element_by_xpath('//*[@type="submit"]')
     sign_in_button.click()
 
-    if driver.current_url != 'https://www.linkedin.com/feed/':
-        print("LinkedIn login error, email/pass are wrong?")
+    feed_url = 'https://www.linkedin.com/feed/'
+    if not driver.current_url.startswith(feed_url):
+        print("LinkedIn login error, you've been redirected to '%s', not to %s. "
+              "Probably email/pass are wrong?" % (driver.current_url, feed_url))
         exit(1)
 
     persons, prev = 0, 0
