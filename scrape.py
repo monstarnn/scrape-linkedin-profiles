@@ -68,34 +68,55 @@ def main():
 
                 persons += 1
                 row_exists = False
+                exists_name = ""
                 for e in exists:
-                    if e[0] == row[0] and e[1] == row[1] and e[2] == row[2]:
+                    # name, position and company are the same
+                    #  OR linkedin profile is the same (if exists)
+                    if e[0] == row[0] and e[1] == row[1] and e[2] == row[2] \
+                            or len(e) >= 4 and len(row) >= 4 and e[3] == row[3]:
                         row_exists = True
+                        exists_name = e[0]
                         break
                 if row_exists:
-                    print("%s: already exists" % row[0])
+                    print("%s: already exists" % exists_name)
                     prev += 1
                     continue
 
-                search_args = []
-                for f in row:
-                    if f != "":
-                        search_args.append(f)
-
+                scraped_row = row[:3]
+                by_link = True
                 scrapped = {}
                 res = "not found"
-                linkedin_url = search_and_follow_linkedin_profile(driver, " ".join(search_args))
+
+                linkedin_url = row[3] if len(row) >= 4 else ''
+                if linkedin_url == '':
+                    by_link = False
+                    search_args = []
+                    for f in row:
+                        if f != "":
+                            search_args.append(f)
+                    linkedin_url = search_and_follow_linkedin_profile(driver, " ".join(search_args))
+                else:
+                    driver.get(linkedin_url)
+
                 if linkedin_url != "":
-                    scrapped, errors = parse_linkedin_page(driver)
+                    scrapped, errors = parse_linkedin_page(driver, by_link)
                     res = ", ".join(errors) if len(errors) > 0 else "done"
 
-                row.append(linkedin_url)
-                row.append(scrapped["avatar"] if "avatar" in scrapped else "")
-                row.append("|".join(scrapped["positions"]) if "positions" in scrapped else "")
-                row.append("|".join(scrapped["companies"]) if "companies" in scrapped else "")
-                row.append("|".join(scrapped["links"]) if "links" in scrapped else "")
-                data_writer.writerow(row)
-                print("%s: %s (%d[%d])" % (row[0], res, persons, prev))
+                if by_link:
+                    if scraped_row[0] == '':
+                        scraped_row[0] = scrapped['name'] if 'name' in scrapped else ''
+                    if scraped_row[1] == '':
+                        scraped_row[1] = scrapped['position'] if 'position' in scrapped else ''
+                    if scraped_row[2] == '':
+                        scraped_row[2] = scrapped['company'] if 'company' in scrapped else ''
+
+                scraped_row.append(linkedin_url)
+                scraped_row.append(scrapped["avatar"] if "avatar" in scrapped else "")
+                scraped_row.append("|".join(scrapped["positions"]) if "positions" in scrapped else "")
+                scraped_row.append("|".join(scrapped["companies"]) if "companies" in scrapped else "")
+                scraped_row.append("|".join(scrapped["links"]) if "links" in scrapped else "")
+                data_writer.writerow(scraped_row)
+                print("%s: %s (%d[%d])" % (scraped_row[0], res, persons, prev))
 
 
 def search_and_follow_linkedin_profile(driver, query):
@@ -127,9 +148,15 @@ def search_and_follow_linkedin_profile(driver, query):
     return linkedin_url
 
 
-def parse_linkedin_page(driver):
+def parse_linkedin_page(driver, by_link=False):
     ret = {}
     errors = []
+
+    # get current name
+    if by_link:
+        name_h1 = driver.find_elements_by_css_selector('h1.pv-top-card-section__name')
+        if len(name_h1) > 0:
+            ret['name'] = name_h1[0].text
 
     # get image url
     try:
@@ -180,6 +207,9 @@ def parse_linkedin_page(driver):
             if len(positions) > 0 and len(companies) > 0:
                 ret["positions"] = positions
                 ret["companies"] = companies
+                if by_link:
+                    ret['position'] = positions[0]
+                    ret['company'] = companies[0]
     except Exception:
         errors.append("get companies and positions error")
 
