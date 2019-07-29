@@ -160,13 +160,14 @@ def parse_linkedin_page(driver, by_link=False):
     # get image url
     try:
         avatar = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "img.lazy-image.presence-entity__image.EntityPhoto-circle-9.loaded")
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "img.lazy-image.presence-entity__image.EntityPhoto-circle-9")
             )
         )
-        avatar_image = avatar.get_attribute("src")
-        if "static.licdn.com" not in avatar_image and "data:image" not in avatar_image:
-            ret["avatar"] = avatar_image
+        if len(avatar) > 0:
+            avatar_image = avatar[0].get_attribute("src")
+            if "static.licdn.com" not in avatar_image and "data:image" not in avatar_image:
+                ret["avatar"] = avatar_image
     except Exception:
         errors.append("get avatar error")
 
