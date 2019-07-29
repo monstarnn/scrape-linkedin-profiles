@@ -1,5 +1,4 @@
 import csv
-import re
 import sys
 
 from selenium import webdriver
@@ -161,20 +160,15 @@ def parse_linkedin_page(driver, by_link=False):
     # get image url
     try:
         avatar = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located(
-                (By.CSS_SELECTOR, ".presence-entity__image.pv-top-card-section__photo")
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "img.lazy-image.presence-entity__image.EntityPhoto-circle-9.loaded")
             )
         )
-        avatar_style = driver.execute_script("""
-            var element = arguments[0], style = element.currentStyle || window.getComputedStyle(element, false);
-            return style['background-image'];
-        """, avatar)
-        avatar_re = re.search('url\(\"(.*)\"\)', avatar_style)
-        if avatar_re:
-            avatar_image = avatar_re.group(1).strip()
-            if "static.licdn.com" not in avatar_image:
-                ret["avatar"] = avatar_re.group(1).strip()
-    except Exception:
+        if len(avatar) > 0:
+            avatar_image = avatar[0].get_attribute("src")
+            if "static.licdn.com" not in avatar_image and "data:image" not in avatar_image:
+                ret["avatar"] = avatar[0].get_attribute("src")
+    except Exception as e:
         errors.append("get avatar error")
 
     # get companies and positions
@@ -215,7 +209,7 @@ def parse_linkedin_page(driver, by_link=False):
 
     # get links
     try:
-        see_links = driver.find_element_by_css_selector('a.pv-top-card-v2-section__link--contact-info')
+        see_links = driver.find_element_by_css_selector('section.pv-top-card-v3 ul.pv-top-card-v3--list a')
         driver.execute_script("arguments[0].click();", see_links)
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located(

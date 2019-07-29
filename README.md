@@ -49,7 +49,7 @@ This script prepares source CSV to required format with 3 columns with header:
 
 ### Scrape LinkedIn profiles
 ```
-python scrape.py <linkerid-email> <linkedin-password>
+python scrape.py <linkedin-email> <linkedin-password>
 ```
 This script logins browser session to LinkedIn as user with specified user's email and password.
 If login succedeed it searches for LinkedIn users from `./data.csv` using LinkegIn's search form
