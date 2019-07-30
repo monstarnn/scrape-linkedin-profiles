@@ -1,5 +1,6 @@
 import csv
 import sys
+import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -119,6 +120,17 @@ def main():
 
 
 def search_and_follow_linkedin_profile(driver, query):
+    #  prevent promo page
+    if "premium/products" in driver.current_url:
+        print('promo page detected, skipping...')
+        time.sleep(1)
+        back_link = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "li.nav-item.nav-return a")
+            )
+        )
+        driver.execute_script("arguments[0].click();", back_link)
+
     search_input = driver.find_element_by_css_selector('.nav-search-typeahead input')
     search_input.clear()
     search_input.send_keys(query)
@@ -168,7 +180,8 @@ def parse_linkedin_page(driver, by_link=False):
             avatar_image = avatar[0].get_attribute("src")
             if "static.licdn.com" not in avatar_image and "data:image" not in avatar_image:
                 ret["avatar"] = avatar_image
-    except Exception:
+    except Exception as e:
+        print('!!! get avatar error:', e)
         errors.append("get avatar error")
 
     # get companies and positions
@@ -204,7 +217,8 @@ def parse_linkedin_page(driver, by_link=False):
                 if by_link:
                     ret['position'] = positions[0]
                     ret['company'] = companies[0]
-    except Exception:
+    except Exception as e:
+        print('!!! get companies and positions error:', e)
         errors.append("get companies and positions error")
 
     # get links
@@ -222,7 +236,8 @@ def parse_linkedin_page(driver, by_link=False):
         if len(links) > 0:
             ret["links"] = links
         webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
-    except Exception:
+    except Exception as e:
+        print('!!! get links error:', e)
         errors.append("get links error")
 
     return ret, errors
