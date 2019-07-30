@@ -5,7 +5,8 @@ import os
 import requests
 
 scraped_data_file_name = 'data.work.csv'
-scrape_to = "./data"
+scrape_to = "../vmworld-data"
+overwrite_image = False
 
 
 def main():
@@ -51,20 +52,35 @@ def save_speaker(data):
     if not os.path.isdir(store_dir):
         os.makedirs(store_dir)
     photo_url = data['image']
-    r = requests.get(photo_url, stream=True)
-    ext = "jpg"
-    if "Content-Type" in r.headers:
-        ct = r.headers["Content-Type"]
-        if ct.startswith("image/"):
-            ext = ct[6:]
-    img_filename = os.path.join(store_dir, 'image.' + ext)
-    with open(img_filename, 'wb') as f:
-        for chunk in r.iter_content():
-            f.write(chunk)
+    # r = requests.options(photo_url, stream=True)
+    # ext = "jpg"
+    # if "Content-Type" in r.headers:
+    #     ct = r.headers["Content-Type"]
+    #     if ct.startswith("image/"):
+    #         ext = ct[6:]
+    # img_filename = os.path.join(store_dir, 'linkedin.' + ext)
+    img_filename = os.path.join(store_dir, 'linkedin.jpg')
+    write_image = True
+    if os.path.exists(img_filename):
+        write_image = overwrite_image
+        if overwrite_image:
+            os.remove(img_filename)
+    if write_image:
+        r = requests.get(photo_url, stream=True)
+        with open(img_filename, 'wb') as f:
+            for chunk in r.iter_content():
+                f.write(chunk)
     del data['image']
-    with open(os.path.join(store_dir, 'meta.json'), 'w') as m:
+    meta_filename = os.path.join(store_dir, 'meta.json')
+    if os.path.exists(meta_filename):
+        with open(meta_filename, 'r') as r:
+            loaded_data = json.load(r)
+            for k in loaded_data:
+                if k not in data:
+                    data[k] = loaded_data[k]
+    with open(meta_filename, 'w') as m:
         json.dump(data, m, indent=2)
-    print('saved {} with picture and metadata'.format(data['name']))
+    print('saved {} {} picture'.format(data['name'], 'with' if write_image else 'without'))
 
 
 if __name__ == '__main__':
