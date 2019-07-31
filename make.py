@@ -1,15 +1,23 @@
 import csv
 import json
 import os
+import sys
 
 import requests
 
-scraped_data_file_name = 'data.work.csv'
-scrape_to = "../vmworld-data"
+scraped_data_file_name = 'data.linkedin.scraped.csv'
+save_to_dir = "../data"
 overwrite_image = False
 
 
 def main():
+    global save_to_dir
+
+    if len(sys.argv) < 2:
+        print("usage: %s <save-to-dir>" % sys.argv[0])
+        exit(1)
+    save_to_dir = [1]
+
     data = []
     cnt = 0
     cnt_li = 0
@@ -43,12 +51,14 @@ def main():
 
     print("rows: {}, with linkedin profiles: {}, with images: {}".format(cnt, cnt_li, cnt_img))
 
+    cnt = 1
     for profile in data:
-        save_speaker(profile)
+        save_speaker(profile, cnt=cnt)
+        cnt += 1
 
 
-def save_speaker(data):
-    store_dir = os.path.join(scrape_to, data['name'].replace(" ", "_"))
+def save_speaker(data, cnt=0):
+    store_dir = os.path.join(save_to_dir, data['name'].replace(" ", "_"))
     if not os.path.isdir(store_dir):
         os.makedirs(store_dir)
     photo_url = data['image']
@@ -80,7 +90,7 @@ def save_speaker(data):
                     data[k] = loaded_data[k]
     with open(meta_filename, 'w') as m:
         json.dump(data, m, indent=2)
-    print('saved {} {} picture'.format(data['name'], 'with' if write_image else 'without'))
+    print('{}. saved {} {} picture'.format(cnt, data['name'], 'with' if write_image else 'without'))
 
 
 if __name__ == '__main__':
