@@ -16,7 +16,7 @@ def main():
     if len(sys.argv) < 2:
         print("usage: %s <save-to-dir>" % sys.argv[0])
         exit(1)
-    save_to_dir = [1]
+    save_to_dir = sys.argv[1]
 
     data = []
     cnt = 0
