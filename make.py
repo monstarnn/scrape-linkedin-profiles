@@ -14,9 +14,13 @@ def main():
     global save_to_dir
 
     if len(sys.argv) < 2:
-        print("usage: %s <save-to-dir>" % sys.argv[0])
+        print("usage: %s <save-to-dir> [additional_meta...]" % sys.argv[0])
         exit(1)
     save_to_dir = sys.argv[1]
+
+    additional = []
+    if len(sys.argv) > 2:
+        additional = sys.argv[2:]
 
     data = []
     cnt = 0
@@ -32,20 +36,24 @@ def main():
                 meta["position"] = row[1]
             if row[2]:
                 meta["company"] = row[2]
-            if row[3]:
-                meta["linkedin"] = row[3]
+            i = 3
+            for a in additional:
+                meta[a] = row[i]
+                i += 1
+            if row[i]:
+                meta["linkedin"] = row[i]
                 cnt_li += 1
-            if row[4]:
-                meta["image"] = row[4]
+            if row[i + 1]:
+                meta["image"] = row[i + 1]
                 cnt_img += 1
             else:
                 continue
-            if row[5]:
-                meta["positions"] = row[5].split("|")
-            if row[6]:
-                meta["companies"] = row[6].split("|")
-            if row[7]:
-                meta["links"] = row[7].split("|")
+            if row[i + 2]:
+                meta["positions"] = row[i + 2].split("|")
+            if row[i + 3]:
+                meta["companies"] = row[i + 3].split("|")
+            if row[i + 4]:
+                meta["links"] = row[i + 4].split("|")
 
             data.append(meta)
 

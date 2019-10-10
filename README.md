@@ -42,9 +42,17 @@ pip3 install selenium
 
 ### Prepare existing data
 ```bash
-python prepare.py source-filename
+python prepare.py source-filename.csv [first-name-col last-name-col position-col company-col additional-cols...]
 ```
-This script prepares source CSV to required format with 3 columns with header:
+For example, without additional columns:
+```bash
+python3 prepare.py source-filename.csv 1 3 0
+```
+With additional columns:
+```bash
+python3 prepare.py source-filename.csv 1 3 0 '2:Email' '5:Engagement Type' '6:Stage'
+```
+This script prepares source CSV to required format with at least 3 columns with header:
 `First and Last Name`, `Position` and `Company`. This data will record to `./data.csv`
 
 ### Scrape LinkedIn profiles
@@ -52,7 +60,7 @@ This script prepares source CSV to required format with 3 columns with header:
 python scrape.py linkedin-email linkedin-password
 ```
 This script logins browser session to LinkedIn as user with specified user's email and password.
-If login succedeed it searches for LinkedIn users from `./data.csv` using LinkegIn's search form
+If login succeeded it searches for LinkedIn users from `./data.csv` using LinkegIn's search form
 and scrapes user's info from their profiles. So existing information is complemented by the following fields:
 * `LinkedIn` - URL to LinkedIn's profile (empty if user has not been found)
 * `Image` - URL to user's avatar image (empty if absent)

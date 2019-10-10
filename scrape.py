@@ -56,12 +56,15 @@ def main():
             csv_reader = csv.reader(source, delimiter=';')
             data_writer = csv.writer(target, delimiter=';')
             header = next(csv_reader)
+            src_data_len = len(header)
             if write_header:
-                header.append("LinkedIn")
-                header.append("Image")
-                header.append("Positions")
-                header.append("Companies")
-                header.append("Links")
+                header.extend([
+                    "LinkedIn",
+                    "Image",
+                    "Positions",
+                    "Companies",
+                    "Links",
+                ])
                 data_writer.writerow(header)
 
             for row in csv_reader:
@@ -82,20 +85,21 @@ def main():
                     prev += 1
                     continue
 
-                scraped_row = row[:3]
+                scraped_row = row[:src_data_len]
                 by_link = True
                 scrapped = {}
                 res = "not found"
 
-                linkedin_url = row[3] if len(row) >= 4 else ''
+                linkedin_url = row[src_data_len] if len(row) > src_data_len else ''
                 if linkedin_url == '':
                     by_link = False
                     search_args = []
-                    for f in row:
+                    for f in row[:3]:
                         if f != "":
                             search_args.append(f)
                     linkedin_url = search_and_follow_linkedin_profile(driver, " ".join(search_args))
                 else:
+                    print("Following existing link '%s'" % linkedin_url)
                     driver.get(linkedin_url)
 
                 if linkedin_url != "":
@@ -195,6 +199,7 @@ def parse_linkedin_page(driver, by_link=False):
                         (By.ID, "experience-section")
                     )
                 )
+                time.sleep(.1)
             except:
                 pass
             else:
@@ -209,7 +214,7 @@ def parse_linkedin_page(driver, by_link=False):
             )
             positions = [pos.text.replace("|", " ").strip() for pos in positions_selector]
             companies_selector = driver.find_elements_by_css_selector(
-                '#experience-section span.pv-entity__secondary-title')
+                '#experience-section p.pv-entity__secondary-title')
             companies = [cmp.text.replace("|", " ").strip() for cmp in companies_selector]
             if len(positions) > 0 and len(companies) > 0:
                 ret["positions"] = positions
