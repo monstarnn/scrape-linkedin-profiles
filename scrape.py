@@ -158,7 +158,14 @@ def search_and_follow_linkedin_profile(driver, query):
     linkedin_url = ""
     if len(linkedin_urls) > 0:
         linkedin_url = linkedin_urls[0].get_attribute("href")
-        driver.execute_script("arguments[0].click();", linkedin_urls[0])
+        if linkedin_url.startswith(driver.current_url):
+            # not from your contacts
+            print("imitated link, skipped")
+            linkedin_url = ""
+        else:
+            driver.execute_script("arguments[0].click();", linkedin_urls[0])
+    else:
+        print("no links")
 
     return linkedin_url
 
