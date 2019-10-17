@@ -55,6 +55,12 @@ python3 prepare.py source-filename.csv 1 3 0 '2:Email' '5:Engagement Type' '6:St
 This script prepares source CSV to required format with at least 3 columns with header:
 `First and Last Name`, `Position` and `Company`. This data will record to `./data.csv`
 
+If source data has separated fields for first and last names, use `prepare_join_first_last_names.py` to join these fields to one field.
+For example, to join 3rd and 4th fields you can run:
+```bash
+python3 prepare_join_first_last_names.py source-filename.csv target-filename.csv 2 3
+```
+
 ### Scrape LinkedIn profiles
 ```bash
 python scrape.py linkedin-email linkedin-password
