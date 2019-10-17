@@ -64,6 +64,7 @@ def main():
                     "Positions",
                     "Companies",
                     "Links",
+                    "Bio",
                 ])
                 data_writer.writerow(header)
 
@@ -119,6 +120,7 @@ def main():
                 scraped_row.append("|".join(scrapped["positions"]) if "positions" in scrapped else "")
                 scraped_row.append("|".join(scrapped["companies"]) if "companies" in scrapped else "")
                 scraped_row.append("|".join(scrapped["links"]) if "links" in scrapped else "")
+                scraped_row.append(scrapped["bio"] if "bio" in scrapped else "")
                 data_writer.writerow(scraped_row)
                 print("%s: %s (%d[%d])" % (scraped_row[0], res, persons, prev))
 
@@ -179,6 +181,21 @@ def parse_linkedin_page(driver, by_link=False):
         name_h1 = driver.find_elements_by_css_selector('h1.pv-top-card-section__name')
         if len(name_h1) > 0:
             ret['name'] = name_h1[0].text
+
+    # get bio
+    try:
+        bio_more = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, ".pv-about__summary-text a.lt-line-clamp__more")
+            )
+        )
+        bio_more.click()
+        bio = driver.find_element_by_css_selector('.pv-about__summary-text .lt-line-clamp__raw-line')
+        ret['bio'] = bio.text
+
+    except Exception as e:
+        print('!!! get bio error:', e)
+        errors.append("get bio error")
 
     # get image url
     try:

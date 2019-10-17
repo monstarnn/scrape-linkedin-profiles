@@ -54,6 +54,8 @@ def main():
                 meta["companies"] = row[i + 3].split("|")
             if row[i + 4]:
                 meta["links"] = row[i + 4].split("|")
+            if row[i + 5]:
+                meta["bio"] = row[i + 5]
 
             data.append(meta)
 

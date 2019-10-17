@@ -78,3 +78,8 @@ python make.py save-to-dir
 ```
 This script downloads photos and metadata to `save-to-dir` directory.
 Photo saves as `linkedin.jpg`, metadata saves to `meta.json`.
+
+If additional columns exists in scraped data, these columns headers must be set as arguments, for example:
+```bash
+python make.py ./data2 Email "Engagement Type" Stage
+```
