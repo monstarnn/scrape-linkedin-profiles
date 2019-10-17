@@ -190,10 +190,26 @@ def parse_linkedin_page(driver, by_link=False):
         if len(avatar) > 0:
             avatar_image = avatar[0].get_attribute("src")
             if "static.licdn.com" not in avatar_image and "data:image" not in avatar_image:
+                # store small image
                 ret["avatar"] = avatar_image
+                # click to show large image
+                avatar[0].click()
+                WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, "#li-modal-container img.pv-member-photo-modal__profile-image")
+                    )
+                )
+                large_img = driver.find_element_by_css_selector(
+                    '#li-modal-container img.pv-member-photo-modal__profile-image')
+                ret["avatar"] = large_img.get_attribute('src')
+                webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
+
     except Exception as e:
-        print('!!! get avatar error:', e)
-        errors.append("get avatar error")
+        if 'avatar' in ret:
+            print('!!! get large avatar error: {}, but small avatar has been saved'.format(e))
+        else:
+            print('!!! get avatar error:', e)
+            errors.append("get avatar error")
 
     # get companies and positions
     try:
@@ -206,7 +222,7 @@ def parse_linkedin_page(driver, by_link=False):
                         (By.ID, "experience-section")
                     )
                 )
-                time.sleep(.1)
+                time.sleep(.2)
             except:
                 pass
             else:
