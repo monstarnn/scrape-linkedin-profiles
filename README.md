@@ -13,6 +13,8 @@ After downloading suitable WebDriver it should be started, for example ChromeDri
 ./chromedriver --port=4444 --url-base="wd/hub" --whitelisted-ips=""
 ```
 
+Connection to container is different, see the code in `scrape.py` (commented part).
+
 During the tests WebDriver will open new browser session and run the tests in this browser's session.
 After tests completion this just opened browser's session will be closed.
 

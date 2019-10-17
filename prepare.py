@@ -10,7 +10,7 @@ data_file_name = 'data.csv'
 
 def main():
     if len(sys.argv) < 5:
-        print("usage: %s <source-filename.csv> [first-name-col last-name-col position-col company-col "
+        print("usage: %s <source-filename.csv> [first-and-last-name-col position-col company-col "
               "additional-cols...]" % sys.argv[0])
         exit(1)
 

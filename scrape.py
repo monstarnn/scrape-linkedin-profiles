@@ -4,6 +4,7 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -33,7 +34,12 @@ def main():
         write_header = False
         print("data from %s has been read" % target_data_file_name)
 
-    driver = webdriver.Chrome('./chromedriver')
+    # connection to local chromedriver
+    # driver = webdriver.Chrome('./chromedriver')
+
+    # connection to selenium docker container (see README.md)
+    cap = DesiredCapabilities.CHROME
+    driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub', desired_capabilities=cap)
 
     # login to linkedin
     driver.get('https://www.linkedin.com/uas/login')
@@ -135,7 +141,10 @@ def search_and_follow_linkedin_profile(driver, query):
                 (By.CSS_SELECTOR, "li.nav-item.nav-return a")
             )
         )
-        driver.execute_script("arguments[0].click();", back_link)
+        back_link.click()
+        # driver.execute_script("arguments[0].click();", back_link)
+
+        return search_and_follow_linkedin_profile(driver, query)
 
     search_input = driver.find_element_by_css_selector('.nav-search-typeahead input')
     search_input.clear()
@@ -231,7 +240,7 @@ def parse_linkedin_page(driver, by_link=False):
     # get companies and positions
     try:
         element = False
-        for i in range(3):
+        for i in range(5):
             try:
                 driver.execute_script("window.scrollTo(0, 250);")
                 element = WebDriverWait(driver, 3).until(
