@@ -65,7 +65,7 @@ python3 prepare_join_first_last_names.py source-filename.csv target-filename.csv
 
 ### Scrape LinkedIn profiles
 ```bash
-python scrape.py linkedin-email linkedin-password
+python scrape.py linkedin-email linkedin-password [linkedin_col]
 ```
 This script logins browser session to LinkedIn as user with specified user's email and password.
 If login succeeded it searches for LinkedIn users from `./data.csv` using LinkegIn's search form
@@ -75,6 +75,8 @@ and scrapes user's info from their profiles. So existing information is compleme
 * `Positions` - "|"-separated user's last jobs positions (related with companies)
 * `Companies` - "|"-separated user's last jobs companies (related with positions)
 * `Links` - "|"-separated user's links (Twitter, sites, etc...)
+
+If `linkedin_col` is set and value is not empty, user does not searches, just following specified link.
 
 Scrapped info stores to `./data.linkedin.scraped.csv`
 

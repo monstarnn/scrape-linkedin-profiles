@@ -34,6 +34,12 @@ def main():
         write_header = False
         print("data from %s has been read" % target_data_file_name)
 
+    has_linkedin_col = False
+    linkedin_col = None
+    if len(sys.argv) > 3:
+        linkedin_col = int(sys.argv[3])
+        has_linkedin_col = True
+
     # connection to local chromedriver
     # driver = webdriver.Chrome('./chromedriver')
 
@@ -64,8 +70,10 @@ def main():
             header = next(csv_reader)
             src_data_len = len(header)
             if write_header:
+                if not linkedin_col:
+                    header.append("LinkedIn")
+                    linkedin_col = len(header)
                 header.extend([
-                    "LinkedIn",
                     "Image",
                     "Positions",
                     "Companies",
@@ -83,7 +91,8 @@ def main():
                     # name, position and company are the same
                     #  OR linkedin profile is the same (if exists)
                     if e[0] == row[0] and e[1] == row[1] and e[2] == row[2] \
-                            or len(e) >= 4 and len(row) >= 4 and e[3] == row[3]:
+                            or len(e) > linkedin_col and len(row) > linkedin_col \
+                            and e[linkedin_col] == row[linkedin_col]:
                         row_exists = True
                         exists_name = e[0]
                         break
@@ -97,7 +106,7 @@ def main():
                 scrapped = {}
                 res = "not found"
 
-                linkedin_url = row[src_data_len] if len(row) > src_data_len else ''
+                linkedin_url = row[linkedin_col] if len(row) > linkedin_col else ''
                 if linkedin_url == '':
                     by_link = False
                     search_args = []
@@ -121,7 +130,8 @@ def main():
                     if scraped_row[2] == '':
                         scraped_row[2] = scrapped['company'] if 'company' in scrapped else ''
 
-                scraped_row.append(linkedin_url)
+                if not has_linkedin_col:
+                    scraped_row.append(linkedin_url)
                 scraped_row.append(scrapped["avatar"] if "avatar" in scrapped else "")
                 scraped_row.append("|".join(scrapped["positions"]) if "positions" in scrapped else "")
                 scraped_row.append("|".join(scrapped["companies"]) if "companies" in scrapped else "")
@@ -136,7 +146,7 @@ def search_and_follow_linkedin_profile(driver, query):
     if "premium/products" in driver.current_url:
         print('promo page detected, skipping...')
         time.sleep(1)
-        back_link = WebDriverWait(driver, 3).until(
+        back_link = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "li.nav-item.nav-return a")
             )
